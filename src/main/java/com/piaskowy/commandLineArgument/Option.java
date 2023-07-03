@@ -12,7 +12,7 @@ public @interface Option {
 
     String defaultValue() default "";
 
-    boolean hasValue() default true;
+    boolean hasValue() default false;
 
     double minValue() default Double.MIN_VALUE;
 

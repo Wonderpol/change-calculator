@@ -1,50 +1,53 @@
 package com.piaskowy.commandLineArgument;
 
+import com.piaskowy.commandLineArgument.argugmentStrategy.ArgumentParserStrategy;
+import com.piaskowy.commandLineArgument.argugmentStrategy.ArgumentParserStrategyFactory;
 import com.piaskowy.commandLineArgument.exception.InvalidOptionException;
 import com.piaskowy.commandLineArgument.exception.InvalidOptionValueException;
+import com.piaskowy.commandLineArgument.exception.RequiredOptionMissingException;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static java.lang.String.format;
 
 public class CommandLineParser {
-    private Map<String, String> options;
+    private final ArgumentParserStrategyFactory strategyFactory;
 
     public CommandLineParser() {
-        this.options = new HashMap<>();
+        this.strategyFactory = new ArgumentParserStrategyFactory();
     }
 
     public void parse(Object obj, String... args) throws IllegalStateException, IllegalAccessException {
         Class<?> clazz = obj.getClass();
 
-        for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Option.class)) {
-                Option option = field.getAnnotation(Option.class);
-                String key = option.name();
-                String value = option.defaultValue();
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
 
-                if (args != null) {
-                    for (int i = 0; i < args.length; i++) {
-                        if (args[i].equals(key)) {
-                            if (option.hasValue() && i + 1 < args.length) {
-                                value = args[i + 1];
-                            } else {
-                                throw new InvalidOptionException(format("Option %s requires value", key));
-                            }
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Option.class)) {
+                    Option option = field.getAnnotation(Option.class);
+                    String key = option.name();
+                    String value = option.defaultValue();
+
+                    if (arg.startsWith(key)) {
+                        if (option.hasValue() && arg.length() > key.length()) {
+                            value = arg.substring(key.length() + 1);
+                        } else if (option.hasValue() && i + 1 < args.length) {
+                            value = args[i + 1];
+                            i++;
+                        } else {
+                            throw new InvalidOptionException(format("Option %s requires value", key));
                         }
+                        validateOptionValue(option, value);
+                        field.setAccessible(true);
+                        ArgumentParserStrategy strategy = strategyFactory.getStrategyForField(field);
+                        strategy.parse(key, value, obj, field);
                     }
                 }
-
-                validateOptionValue(option, value);
-
-                field.setAccessible(true);
-                setOptionValue(field, obj, value);
             }
         }
-        checkRequiredOptions(clazz);
+        checkRequiredOptions(obj);
     }
 
     private void validateOptionValue(Option option, String value) {
@@ -61,27 +64,16 @@ public class CommandLineParser {
         }
     }
 
-    private void setOptionValue(Field field, Object obj, String value) throws IllegalAccessException {
-        field.setAccessible(true);
-
-        Class<?> fieldType = field.getType();
-        if (fieldType == String.class) {
-            field.set(obj, value);
-        } else if (fieldType == int.class) {
-            field.setInt(obj, Integer.parseInt(value));
-        } else if (fieldType == double.class) {
-            field.setDouble(obj, Double.parseDouble(value));
-        } else if (fieldType == String[].class) {
-            field.set(obj, value.split(","));
-        }
-    }
-
-    private void checkRequiredOptions(Class<?> clazz) throws InvalidOptionException {
-        for (Field field : clazz.getDeclaredFields()) {
+    private void checkRequiredOptions(Object obj) throws IllegalAccessException {
+        for (Field field : obj.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(Option.class)) {
                 Option option = field.getAnnotation(Option.class);
-                if (option.required() && !options.containsKey(option.name())) {
-                    throw new InvalidOptionException("Required option missing: " + option.name());
+                boolean isRequired = option.required();
+                field.setAccessible(true);
+
+                if (isRequired && field.get(obj) == null) {
+                    String optionName = option.name();
+                    throw new RequiredOptionMissingException(format("Required option %s is missing", optionName));
                 }
             }
         }
