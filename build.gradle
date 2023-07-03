@@ -1,6 +1,9 @@
 plugins {
     id("java")
+    id("application")
 }
+
+mainClassName = 'com.piaskowy.Main'
 
 group = "com.piaskowy"
 version = "1.0-SNAPSHOT"
