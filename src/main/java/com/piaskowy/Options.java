@@ -2,15 +2,9 @@ package com.piaskowy;
 
 import com.piaskowy.commandLineArgument.Option;
 
+import java.util.List;
+
 public class Options {
-    @Option(name = "change", required = true, hasValue = true)
-    String option;
-
-    public String getOption() {
-        return option;
-    }
-
-    public void setOption(final String option) {
-        this.option = option;
-    }
+    @Option(name = "--files", type = List.class, description = "Opcja jest wymagana", required = true)
+    List<Double> files;
 }

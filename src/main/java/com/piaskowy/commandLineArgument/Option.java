@@ -10,15 +10,9 @@ import java.lang.annotation.Target;
 public @interface Option {
     String name();
 
-    String defaultValue() default "";
+    Class<?> type();
 
-    boolean hasValue() default false;
-
-    double minValue() default Double.MIN_VALUE;
-
-    double maxValue() default Double.MAX_VALUE;
-
-    String[] validValues() default {};
+    String description() default "";
 
     boolean required() default false;
 }
