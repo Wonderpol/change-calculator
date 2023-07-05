@@ -24,7 +24,13 @@ public class Main {
 
         ExchangeCalculator pettyCashRegister = new ExchangeCalculator(cashRegisterMoney);
         final Options options = new Options();
-        ArgsParser.parse(options, args);
+
+        try {
+            ArgsParser.parse(options, args);
+        } catch (RuntimeException e) {
+            System.out.println(e.getLocalizedMessage());
+            return;
+        }
 
         options.files.forEach(val -> {
             try {
