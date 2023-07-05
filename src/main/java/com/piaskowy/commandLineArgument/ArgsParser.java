@@ -42,7 +42,7 @@ public class ArgsParser {
                             for (String value : values) {
                                 Object convertedValue = convertToType(value, genericType);
                                 if (convertedValue == null) {
-                                    throw new BadOptionValueTypeException("Error: Illegal option value type, required: " + genericType.getSimpleName());
+                                    throw new BadOptionValueTypeException("Niepoprawny typ wartości dla argumentu: " + optionAnnotation.name() + ", wymagany: " + genericType.getSimpleName());
                                 }
                                 convertedValues.add(convertedValue);
                             }

@@ -32,7 +32,7 @@ public class Main {
             return;
         }
 
-        options.files.forEach(val -> {
+        options.changes.forEach(val -> {
             try {
                 pettyCashRegister.giveChange(val);
             } catch (RuntimeException e) {

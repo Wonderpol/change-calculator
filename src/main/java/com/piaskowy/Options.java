@@ -6,5 +6,5 @@ import java.util.List;
 
 public class Options {
     @Option(name = "--change", type = List.class, description = "Opcja jest wymagana", required = true)
-    public List<Double> files;
+    public List<Double> changes;
 }
