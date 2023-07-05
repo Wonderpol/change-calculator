@@ -1,4 +1,4 @@
-package com.piaskowy.cashRegister;
+package com.piaskowy.exchangeCalculator;
 
 public record Coin(String name, int nominalInGr) implements Comparable<Coin> {
     public Coin {

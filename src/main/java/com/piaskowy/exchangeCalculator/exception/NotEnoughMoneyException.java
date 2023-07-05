@@ -1,4 +1,4 @@
-package com.piaskowy.cashRegister.exception;
+package com.piaskowy.exchangeCalculator.exception;
 
 public class NotEnoughMoneyException extends RuntimeException {
     public NotEnoughMoneyException(final String message) {
