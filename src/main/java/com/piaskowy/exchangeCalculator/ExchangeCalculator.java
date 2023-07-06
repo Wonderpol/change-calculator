@@ -17,9 +17,9 @@ public class ExchangeCalculator {
         int changeInGr = (int) (amount * 100);
 
         List<Coin> availableCoins = new ArrayList<>(cashRegister.keySet());
-        Collections.sort(availableCoins, Collections.reverseOrder());
+        availableCoins.sort(Collections.reverseOrder());
 
-        if (changeInGr > getTotalCashInGr() || !canMakeChange(changeInGr)) {
+        if (changeInGr > getTotalCashInGr()) {
             throw new NotEnoughMoneyException("Brak wystarczającej liczby pieniędzy");
         }
 
@@ -68,20 +68,6 @@ public class ExchangeCalculator {
         }
 
         return sb.toString();
-    }
-
-    private boolean canMakeChange(int amount) {
-        for (Coin coin : cashRegister.keySet()) {
-            int quantity = cashRegister.get(coin);
-            int nominalInGr = coin.nominalInGr();
-            if (nominalInGr <= amount && quantity > 0) {
-                int numCoinsNeeded = amount / nominalInGr;
-                if (numCoinsNeeded <= quantity) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private int getTotalCashInGr() {
